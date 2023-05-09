@@ -1,2 +1,7 @@
 # vue_store
- E-Shop frontend written in Vue3
+
+E-Shop frontend written in Vue3
+
+# Demo
+
+[Latest release is always here](store.crwnd.dev)
