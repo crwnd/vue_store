@@ -124,7 +124,7 @@ onMounted(() => {
 	refreshProducts(toRefreshObj);
 
 	watch(filters, async (currentValue, oldValue) => {
-		router.push({ query: currentValue.content });
+		await router.push({ query: filters.content });
 		await refreshProducts(currentValue.content);
 	});
 });
@@ -363,7 +363,13 @@ onMounted(() => {
 							></div>
 							<RouterLink
 								class="subcategory__good__img"
-								:to="'/product/' + product.id + '/0/0'"
+								:to="
+									'/product/' +
+									product.id +
+									'/' +
+									product.suitableBundles[0] +
+									'/0'
+								"
 								v-if="
 									products.getProductByID(product.id)
 										.isLoading === false
@@ -478,6 +484,9 @@ onMounted(() => {
 						</div>
 					</li>
 				</ul>
+				<div v-if="filteredProducts.length == 0">
+					<span>No products found (</span>
+				</div>
 			</main>
 		</div>
 	</div>
