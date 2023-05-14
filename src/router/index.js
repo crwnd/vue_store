@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { useUserStore } from "@/stores/user";
 
 import Main from "../pages/MainPage.vue";
 
@@ -27,6 +28,10 @@ import CatalogPage from "../pages/CatalogPage.vue";
 
 import SubcategoryPage from "../pages/SubcategoryPage.vue";
 
+import LoginPage from "../pages/LoginPage.vue";
+
+import RegisterPage from "../pages/RegisterPage.vue";
+
 import AccountPage from "../pages/AccountPage.vue";
 import AccountOverview from "../views/AccountPage/AccountPageOverview.vue";
 import AccountStats from "../views/AccountPage/AccountPageStats.vue";
@@ -34,7 +39,7 @@ import AccountDelivery from "../views/AccountPage/AccountPageDelivery.vue";
 import AccountPersonal from "../views/AccountPage/AccountPagePersonal.vue";
 import AccountSecurity from "../views/AccountPage/AccountPageSecurity.vue";
 
-export default createRouter({
+let router = new createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
 		{
@@ -94,7 +99,11 @@ export default createRouter({
 			redirect: (to) => {
 				return {
 					path:
-						"/product/" + to.params.productid + "/" + to.params.bundleid + "/0",
+						"/product/" +
+						to.params.productid +
+						"/" +
+						to.params.bundleid +
+						"/0",
 				};
 			},
 		},
@@ -124,6 +133,9 @@ export default createRouter({
 			path: "/orders",
 			name: "Orders",
 			component: OrdersPage,
+			meta: {
+				isAuth: true,
+			},
 		},
 		{
 			path: "/cart",
@@ -143,6 +155,9 @@ export default createRouter({
 		{
 			path: "/account/",
 			component: AccountPage,
+			meta: {
+				isAuth: true,
+			},
 			children: [
 				{
 					path: "",
@@ -171,5 +186,41 @@ export default createRouter({
 				},
 			],
 		},
+		{
+			path: "/login/",
+			name: "Log in",
+			component: LoginPage,
+			meta: {
+				isAuth: false,
+			},
+		},
+		{
+			path: "/register/",
+			name: "Register",
+			component: RegisterPage,
+			meta: {
+				isAuth: false,
+			},
+		},
 	],
 });
+
+router.beforeEach((to, from, next) => {
+	const user = useUserStore();
+
+	if (
+		to.matched.some((record) => record.meta.isAuth === true) &&
+		!user.isAuthenticated
+	) {
+		return next("/login/");
+	}
+	if (
+		to.matched.some((record) => record.meta.isAuth === false) &&
+		user.isAuthenticated
+	) {
+		return next("/account/");
+	}
+	next();
+});
+
+export default router;
