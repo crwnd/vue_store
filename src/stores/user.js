@@ -7,6 +7,14 @@ export const useUserStore = defineStore("user", () => {
 	const sessions = ref([]);
 	const name = ref("...");
 	const currentSessionID = ref(-1);
+	const passwordStrengthInfo = {
+		messages: {
+			length: "At least 8 character",
+			number: "At least 1 number",
+			uppercase: "At least 1 uppercase",
+		},
+		possibleCodes: ["length", "number", "uppercase"],
+	};
 
 	async function SignIn(submitEvent) {
 		let email = submitEvent.target.elements.email.value;
@@ -93,6 +101,7 @@ export const useUserStore = defineStore("user", () => {
 			throw json.message;
 		}
 	}
+
 	async function LogOut() {
 		await fetch("https://api.crwnd.dev/auth/logout/", {
 			method: "POST",
@@ -101,34 +110,33 @@ export const useUserStore = defineStore("user", () => {
 		isAuthenticated.value = false;
 		localStorage.setItem("isAuthenticated", false);
 	}
+
 	function passwordStrengthTags(password) {
 		if (!password) password = "";
-		const tags = { passed: [], failed: [] };
+		const tags = {
+			passed: [],
+			failed: [],
+		};
 		if (password.length >= 8) {
 			tags.passed.push("length");
 		} else {
 			tags.failed.push("length");
 		}
 		if (/[A-Z]/.test(password)) {
-			tags.passed.push("1 capital letter");
+			tags.passed.push("uppercase");
 		} else {
-			tags.failed.push("1 capital letter");
-		}
-		if (/[a-z]/.test(password)) {
-			tags.passed.push("1 small letter");
-		} else {
-			tags.failed.push("1 small letter");
-		}
-		if (/\W|_/.test(password)) {
-			tags.passed.push("1 special symbol");
-		} else {
-			tags.failed.push("1 special symbol");
+			tags.failed.push("uppercase");
 		}
 		if (/\d/.test(password)) {
-			tags.passed.push("1 number");
+			tags.passed.push("number");
 		} else {
-			tags.failed.push("1 number");
+			tags.failed.push("number");
 		}
+		// if (/\W|_/.test(password)) {
+		// 	tags.passed.push("1 special symbol");
+		// } else {
+		// 	tags.failed.push("1 special symbol");
+		// }
 		return tags;
 	}
 
@@ -137,6 +145,7 @@ export const useUserStore = defineStore("user", () => {
 		sessions,
 		name,
 		currentSessionID,
+		passwordStrengthInfo,
 		syncWithServer,
 		SignIn,
 		SignUp,
