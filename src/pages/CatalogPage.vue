@@ -1,50 +1,16 @@
 <script setup>
-const cacheTime = 5 * 60; // 5 minutes
-import { reactive } from "vue";
+import { onMounted } from "vue";
+import { useCatalogStore } from "@/stores/catalog";
 import { useRoute } from "vue-router";
 import IconChevronForward from "@/assets/svgs/chevron-forward-outline.svg";
 import IconChevronBack from "@/assets/svgs/chevron-back-outline.svg";
 
 const route = useRoute();
+const catalog = useCatalogStore();
 
-const catalogObj = reactive({ isLoading: true, lastUpdate: -1, content: [] });
-console.log("catalogObj", catalogObj);
-let cachedCatalogJSON = localStorage.getItem("catalogObj");
-
-async function refreshCatalog() {
-	let json = await (
-		await fetch(
-			"https://api.crwnd.dev/api/get-catalog/?" +
-				new URLSearchParams({
-					icons: "svg",
-				})
-		)
-	).json();
-	if (json.code == 0) {
-		catalogObj.isLoading = false;
-		catalogObj.lastUpdate = Math.floor(Date.now() / 1000);
-		catalogObj.content = json.content;
-		localStorage.setItem(
-			"catalogObj",
-			JSON.stringify({
-				lastUpdate: catalogObj.lastUpdate,
-				content: catalogObj.content,
-			})
-		);
-	}
-}
-if (cachedCatalogJSON !== undefined && cachedCatalogJSON !== null) {
-	let cachedCatalogObj = JSON.parse(cachedCatalogJSON);
-	if (cachedCatalogObj.lastUpdate + cacheTime < Math.floor(Date.now() / 1000)) {
-		refreshCatalog();
-	} else {
-		catalogObj.isLoading = false;
-		catalogObj.lastUpdate = cachedCatalogObj.lastUpdate;
-		catalogObj.content = cachedCatalogObj.content;
-	}
-} else {
-	refreshCatalog();
-}
+onMounted(() => {
+  catalog.init();
+});
 </script>
 
 <template>
@@ -56,17 +22,17 @@ if (cachedCatalogJSON !== undefined && cachedCatalogJSON !== null) {
 		>
 			<div class="catalog-content__holder__first-step">
 				<ul
-					v-if="catalogObj.isLoading !== false"
+					v-if="catalog.isLoading !== false"
 					class="catalog-content__holder__first-step__list loading"
 				>
 					<li v-for="ind in 4" :key="ind">Loading...</li>
 				</ul>
 				<ul
-					v-if="catalogObj.isLoading === false"
+					v-if="catalog.isLoading === false"
 					class="catalog-content__holder__first-step__list"
 				>
 					<li
-						v-for="category in catalogObj.content"
+						v-for="category in catalog.content"
 						:key="category.id"
 						class="catalog-content__holder__first-step__list__elem"
 					>
@@ -93,7 +59,7 @@ if (cachedCatalogJSON !== undefined && cachedCatalogJSON !== null) {
 			</div>
 			<div class="catalog-content__holder__second-step">
 				<ul
-					v-if="catalogObj.isLoading === false"
+					v-if="catalog.isLoading === false"
 					class="catalog-content__holder__second-step__list"
 				>
 					<li
@@ -107,7 +73,7 @@ if (cachedCatalogJSON !== undefined && cachedCatalogJSON !== null) {
 								<IconChevronBack
 									class="catalog-content__holder__second-step__list__elem__icon"
 								/>
-								<span>Go back</span>
+								<span>To categories</span>
 							</div>
 							<div
 								class="catalog-content__holder__second-step__list__elem__right"
@@ -116,16 +82,16 @@ if (cachedCatalogJSON !== undefined && cachedCatalogJSON !== null) {
 					</li>
 					<li
 						v-for="subcategory in (
-							catalogObj.content.find(
+							catalog.content.find(
 								(category) => category.id == route.params.categoryid
-							) || catalogObj.content[0]
+							) || catalog.content[0]
 						).subcategories"
 						class="catalog-content__holder__second-step__list__elem"
 					>
 						<RouterLink
 							:to="
 								'/catalog/' +
-								(route.params.categoryid || catalogObj.content[0].id) +
+								(route.params.categoryid || catalog.content[0].id) +
 								'/' +
 								subcategory.id
 							"

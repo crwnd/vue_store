@@ -29,3 +29,4 @@ coverage
 .vscode/extensions.json
 src_20230317.7z
 src_20230422.7z
+package-lock.json

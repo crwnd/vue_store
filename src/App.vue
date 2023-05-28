@@ -6,7 +6,6 @@ import { useUserStore } from "@/stores/user";
 import { useModalsStore } from "@/stores/modals";
 import HeaderGeneral from "@/views/HeaderGeneral.vue";
 import ModalMenuWindow from "@/components/modal-menu-window.vue";
-import FiltersWindow from "@/components/ModalFilters.vue";
 import TopBanner from "@/components/top-page-banner.vue";
 
 const products = useProductsStore();
@@ -33,58 +32,35 @@ function updateSearchString(newValue) {
 	searchString.value = newValue;
 	return;
 }
-async function fetchListContent(source) {
-	let json = await (
-		await fetch("https://api.crwnd.dev/lists/" + source + "", {
-			method: "POST",
-			credentials: "include",
-		})
-	).json();
-	console.log(json);
-	switch (json.code) {
-		case 0:
-			return json.content;
-		case 1:
-			alert(json.message);
-			break;
-		default:
-			throw "unknown err: " + json.message;
-	}
-}
-watch(modals.openedModal, async function (val) {
-	if (val !== undefined && val !== "modalMenu") {
-		if (!document.body.classList.contains("unscrollable-hard")) {
-			document.body.classList.add("unscrollable-hard");
-		}
-	} else {
-		document.body.classList.remove("unscrollable-hard");
-	}
-	let list = [];
-	switch (val) {
-		case "likedModal":
-			list = await fetchListContent("get-my-liked");
-			products.likedList = list.map((el) =>
-				Object.assign({}, el, { isLoading: false })
-			);
-			localStorage.setItem("likedList", JSON.stringify(list));
-			break;
-	}
-});
-function updateActiveFilters() {}
+// watch(modals.openedModal, async function (val) {
+// 	if (val !== undefined && val !== "modalMenu") {
+// 		if (!document.body.classList.contains("unscrollable-hard")) {
+// 			document.body.classList.add("unscrollable-hard");
+// 		}
+// 	} else {
+// 		document.body.classList.remove("unscrollable-hard");
+// 	}
+// 	let list = [];
+// 	switch (val) {
+// 		case "likedModal":
+// 			list = await products.fetchListContent("get-my-liked");
+// 			products.likedList = list.map((el) =>
+// 				Object.assign({}, el, { isLoading: false })
+// 			);
+// 			localStorage.setItem("likedList", JSON.stringify(list));
+// 			break;
+// 	}
+// });
 </script>
 
 <template>
 	<TopBanner />
-	<HeaderGeneral
-		:active-component="$route.name"
-		:search-string="searchString"
-		@update:search-string="updateSearchString"
-	/>
+	<HeaderGeneral :active-component="$route.name" :search-string="searchString"
+		@update:search-string="updateSearchString" />
 	<div id="page-content">
-		<RouterView @update:active-filters="updateActiveFilters" />
+		<RouterView />
 	</div>
 	<ModalMenuWindow :active-component="$route.name" :key="$route.name" />
-	<FiltersWindow />
 </template>
 
 <style>
