@@ -96,16 +96,19 @@ export const useProductsStore = defineStore("products", () => {
 		console.log("newIDs", newIDs);
 		if (newIDs.length == 0) return;
 		let json = await (
-			await fetch("https://api.crwnd.dev/api/get-product-info/", {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-				},
-				body: new URLSearchParams({
-					productid: JSON.stringify(newIDs),
-				}),
-			})
+			await fetch(
+				"https://api.crwnd.dev/api/products-info/?" + new URLSearchParams({ productids: JSON.stringify(newIDs), })
+			)
+			// await fetch("https://api.crwnd.dev/api/get-product-info/", {
+			// 	method: "POST",
+			// 	credentials: "include",
+			// 	headers: {
+			// 		"Content-Type": "application/x-www-form-urlencoded",
+			// 	},
+			// 	body: new URLSearchParams({
+			// 		productid: JSON.stringify(newIDs),
+			// 	}),
+			// })
 		).json();
 		if (json.code == 0) {
 			json.content.forEach((el) => {
@@ -127,6 +130,9 @@ export const useProductsStore = defineStore("products", () => {
 		// productsArr.value.push({ bundles: [], id: parseInt(productID), isLoading: true });
 		fetchNewInfo([parseInt(productID)]);
 		return productsArr.value[productsArr.value.length - 1];
+	}
+	function getProductsByID(productIDs) {
+		return productIDs.map(el => getProductByID(el));
 	}
 	function updateProductWithObject(productObj) {
 		Object.assign(
@@ -380,6 +386,36 @@ export const useProductsStore = defineStore("products", () => {
 		);
 		await fetchNewInfo(newProductIDs);
 	}
+	async function fetchListContent(source) {
+		let json = await (
+			await fetch("https://api.crwnd.dev/lists/" + source + "", {
+				method: "POST",
+				credentials: "include",
+			})
+		).json();
+		// console.log(json);
+		switch (json.code) {
+			case 0:
+				return json.content;
+			case 1:
+				alert(json.message);
+				break;
+			default:
+				throw "unknown err: " + json.message;
+		}
+	}
+	async function fetchRandomProducts() {
+		let json = await (
+			await fetch("https://api.crwnd.dev/api/random-goods/")
+		).json();
+		// console.log(json);
+		switch (json.code) {
+			case 0:
+				fetchNewInfo(json.content);
+				return json.content;
+		}
+		return [];
+	}
 	return {
 		productsArr,
 		activeFilters,
@@ -390,6 +426,7 @@ export const useProductsStore = defineStore("products", () => {
 		lastSeenProducts,
 		informNewProducts,
 		getProductByID,
+		getProductsByID,
 		updateProductWithObject,
 		updateProductsArr,
 		likeProduct,
@@ -398,5 +435,7 @@ export const useProductsStore = defineStore("products", () => {
 		uncartProduct,
 		cartChangeProductQuantity,
 		handleListChange,
+		fetchListContent,
+		fetchRandomProducts
 	};
 });

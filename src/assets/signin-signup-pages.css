@@ -1,4 +1,5 @@
 .auth-content {
+	height: 100%;
 	width: 100%;
 	height: auto;
 	display: flex;
@@ -35,23 +36,93 @@
 	align-items: center;
 	gap: 14px;
 }
-.auth-content input,
-.auth-content button {
+.auth-content__form__input,
+.auth-content__form__button {
 	height: 48px;
-	max-width: 327px;
+	max-width: 360px;
 	width: 100%;
 	border-radius: 8px;
 	padding: 8px 16px;
+	border: none;
 }
-.auth-content button {
+.auth-content__form__input.error {
+	border: 2px solid red;
+}
+.auth-content__form__button {
 	border-radius: 48px;
 }
-
+.auth-content__form__input-text {
+	width: 100%;
+	max-width: 360px;
+	font-size: 11px;
+	line-height: 12px;
+	margin-left: 16px;
+}
+.auth-content__right__form__additional-actions {
+	width: 100%;
+	max-width: 360px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+.auth-content__right__form__additional-actions__remember-me {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+.auth-content__right__form__additional-actions__remember-me__checkbox {
+	width: 20px;
+	height: 20px;
+	margin-right: 8px;
+}
+.auth-content__right__form__additional-action__action-link {
+	font-size: 12px;
+	line-height: 20px;
+}
+.auth-content__right__form__additional-action {
+	width: 100%;
+	max-width: 360px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-top: 24px;
+	font-size: 12px;
+	line-height: 20px;
+}
+.auth-content__right__form__additional-action__action-link {
+	margin-left: 8px;
+}
+.password-strength-tags {
+	width: 100%;
+	max-width: 360px;
+	display: block;
+}
+.password-strength-tags__list {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.password-strength-tags__list__elem {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+}
+.password-strength-tags__list__elem svg {
+	width: 24px;
+	height: 24px;
+	margin-right: 8px;
+}
 @media screen and (max-width: 768px) {
 	.auth-content__left {
 		display: none;
 	}
 	.auth-content__right {
 		width: 100%;
+	}
+	.auth-content__right {
+		padding: 12px;
 	}
 }

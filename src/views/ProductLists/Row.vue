@@ -2,105 +2,143 @@
 import { useProductsStore } from "@/stores/products";
 import IconHeart from "@/assets/svgs/heart.svg";
 import IconHeartOutline from "@/assets/svgs/heart-outline.svg";
+import { register } from 'swiper/element/bundle';
+register();
 defineProps(["providedProducts", "title", "see-more-function"]);
 defineEmits([]);
 const products = useProductsStore();
 </script>
 
 <template>
-	<div class="portal-section liked-goods">
+	<div class="portal-section">
 		<div class="portal-section__heading">
 			<h2>{{ title || "" }}</h2>
 			<button v-if="providedProducts.length > 8" @click="seeMoreFunction">
 				More
 			</button>
 		</div>
-		<ul class="section-products-row">
-			<li
-				v-for="productObj in providedProducts.slice(-8)"
-				:key="productObj.id + '-' + productObj.bundleID"
-				class="product-card portal-section-item product-card-ingrid"
-				:class="{
+		<div v-if="providedProducts.length <= 0" class="portal-section__empty-screen"><span>You dont have {{ title }}
+				products(</span>
+		</div>
+		<swiper-container v-if="providedProducts.length > 0" slides-per-view="auto" navigation="true"
+			:mousewheel="{ releaseOnEdges: true }">
+			<swiper-slide v-for="productObj in providedProducts.slice(-16)"
+				:key="productObj.id + '-' + (productObj.bundleID || 0)"
+				class="product-card portal-section-item product-card-ingrid" :class="{
 					liked: products.likedList.some(
 						(el) =>
 							el.productID == productObj.id &&
-							el.bundleID == productObj.bundleID
+							el.bundleID == (productObj.bundleID || 0)
 					),
-				}"
-				:data-id="productObj.id"
-				:style="{ opacity: productObj.isLoading === false ? 1 : 0.5 }"
-			>
-				<RouterLink
-					:to="'/product/' + productObj.id + '/' + productObj.bundleID"
-				>
-					<div
-						class="product-card__image"
-						:class="{ loading: productObj.isLoading }"
-					>
+				}" :style="{ opacity: productObj.isLoading === false ? 1 : 0.5 }">
+				<RouterLink :to="'/product/' + productObj.id + '/' + (productObj.bundleID || 0)">
+					<div class="product-card__image" :class="{ loading: productObj.isLoading }">
 						<div class="loadingspinner" v-if="productObj.isLoading"></div>
-						<img
-							class="product-card__mainimage"
-							v-if="!productObj.isLoading"
-							:src="
-								productObj.isLoading
-									? '/'
-									: productObj.bundles[productObj.bundleID].images[0]
-							"
-							alt="Product main image"
-							loading="lazy"
-						/>
+						<img class="product-card__mainimage" v-if="!productObj.isLoading && productObj.bundles.length > 0"
+							:src="productObj.isLoading === false
+								? productObj.bundles[productObj.bundleID || 0].images[0]
+								: '/'
+								" alt="Product main image" loading="lazy" />
 					</div>
 					<div class="portal-section-item-info">
 						<span class="portal-section-item-info-name">{{
 							productObj.isLoading
-								? ""
-								: productObj.bundles[productObj.bundleID].name
+							? ""
+							: productObj.bundles[productObj.bundleID || 0].name
 						}}</span>
-						<div
-							class="portal-section-item-crossed-price"
-							v-if="!productObj.isLoading"
-						>
+						<div class="portal-section-item-crossed-price" v-if="!productObj.isLoading">
 							<span class="amount">150</span>
 							<span class="curency">₴</span>
 						</div>
-						<div
-							class="portal-section-item-info-price"
-							v-if="!productObj.isLoading"
-						>
+						<div class="portal-section-item-info-price" v-if="!productObj.isLoading">
 							<span class="amount">120</span>
 							<span class="curency">₴</span>
 						</div>
 					</div>
 				</RouterLink>
 				<div class="product-card-actions">
-					<button
-						class="product-card-like-btn"
-						@click="
-							products.likedList.some(
-								(el) =>
-									el.productID == productObj.id &&
-									el.bundleID == productObj.bundleID
-							)
-								? products.unlikeProduct(productObj.id, productObj.bundleID)
-								: products.likeProduct(productObj.id, productObj.bundleID)
-						"
-						:style="{
-							opacity: products.likedList.some(
-								(el) =>
-									el.productID == productObj.id &&
-									el.bundleID == productObj.bundleID &&
-									el.isLoading === true
-							)
-								? 0.5
-								: 1,
-						}"
-					>
+					<button class="product-card-like-btn" @click="
+						products.likedList.some(
+							(el) =>
+								el.productID == productObj.id &&
+								el.bundleID == (productObj.bundleID || 0)
+						)
+							? products.unlikeProduct(productObj.id, productObj.bundleID || 0)
+							: products.likeProduct(productObj.id, productObj.bundleID || 0)
+						" :style="{
+		opacity: products.likedList.some(
+			(el) =>
+				el.productID == productObj.id &&
+				el.bundleID == (productObj.bundleID || 0) &&
+				el.isLoading === true
+		)
+			? 0.5
+			: 1,
+	}">
+						<IconHeartOutline class="product-card-like-btn-empty" />
+						<IconHeart class="product-card-like-btn-full" />
+					</button>
+				</div>
+			</swiper-slide>
+		</swiper-container>
+		<!-- <ul class="section-products-row">
+			<li v-for="productObj in providedProducts.slice(-8)" :key="productObj.id + '-' + productObj.bundleID"
+				class="product-card portal-section-item product-card-ingrid" :class="{
+					liked: products.likedList.some(
+						(el) =>
+							el.productID == productObj.id &&
+							el.bundleID == productObj.bundleID
+					),
+				}" :style="{ opacity: productObj.isLoading === false ? 1 : 0.5 }">
+				<RouterLink :to="'/product/' + productObj.id + '/' + productObj.bundleID">
+					<div class="product-card__image" :class="{ loading: productObj.isLoading }">
+						<div class="loadingspinner" v-if="productObj.isLoading"></div>
+						<img class="product-card__mainimage" v-if="!productObj.isLoading" :src="productObj.isLoading
+							? '/'
+							: productObj.bundles[productObj.bundleID].images[0]
+							" alt="Product main image" loading="lazy" />
+					</div>
+					<div class="portal-section-item-info">
+						<span class="portal-section-item-info-name">{{
+							productObj.isLoading
+							? ""
+							: productObj.bundles[productObj.bundleID].name
+						}}</span>
+						<div class="portal-section-item-crossed-price" v-if="!productObj.isLoading">
+							<span class="amount">150</span>
+							<span class="curency">₴</span>
+						</div>
+						<div class="portal-section-item-info-price" v-if="!productObj.isLoading">
+							<span class="amount">120</span>
+							<span class="curency">₴</span>
+						</div>
+					</div>
+				</RouterLink>
+				<div class="product-card-actions">
+					<button class="product-card-like-btn" @click="
+						products.likedList.some(
+							(el) =>
+								el.productID == productObj.id &&
+								el.bundleID == productObj.bundleID
+						)
+							? products.unlikeProduct(productObj.id, productObj.bundleID)
+							: products.likeProduct(productObj.id, productObj.bundleID)
+						" :style="{
+		opacity: products.likedList.some(
+			(el) =>
+				el.productID == productObj.id &&
+				el.bundleID == productObj.bundleID &&
+				el.isLoading === true
+		)
+			? 0.5
+			: 1,
+	}">
 						<IconHeartOutline class="product-card-like-btn-empty" />
 						<IconHeart class="product-card-like-btn-full" />
 					</button>
 				</div>
 			</li>
-		</ul>
+		</ul> -->
 	</div>
 </template>
 <style>
@@ -111,11 +149,23 @@ const products = useProductsStore();
 	justify-content: space-between;
 	padding: 0 8px;
 }
+
 .product-card-actions svg {
 	width: 18px;
 	height: 18px;
 }
+
+.portal-section__empty-screen {
+	width: 100%;
+	height: 128px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
 .product-card-ingrid {
+	height: 256px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -154,6 +204,7 @@ const products = useProductsStore();
 	margin-bottom: 16px;
 	text-align: center;
 }
+
 .product-card-ingrid .product-card__image.loading {
 	width: 100%;
 	height: 150px;
@@ -209,6 +260,7 @@ const products = useProductsStore();
 .product-card.liked .product-card-like-btn-full {
 	color: var(--accent-color);
 }
+
 @media screen and (max-width: 1600px) {
 	.product-card-ingrid {
 		width: calc(100% / 6);
@@ -220,6 +272,7 @@ const products = useProductsStore();
 		width: 25%;
 	}
 }
+
 @media screen and (max-width: 768px) {
 	.product-card-ingrid {
 		width: 50%;
