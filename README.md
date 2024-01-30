@@ -3,8 +3,7 @@
 E-Shop frontend written in Vue3
 
 # Demo
-
-[Latest release is always here](store.crwnd.dev)
+[Latest release is always here](https://store.crwnd.dev)
 
 # Run
 
