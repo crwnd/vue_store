@@ -3,7 +3,6 @@
 E-Shop frontend written in Vue3
 
 # Demo
-
 [Latest release is always here](https://store.crwnd.dev)
 
 # Run
